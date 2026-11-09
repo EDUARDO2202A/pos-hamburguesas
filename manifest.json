@@ -1,0 +1,15 @@
+{
+  "name": "Perritos y Hamburguesas de la 40",
+  "short_name": "POS La 40",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f0f2f5",
+  "theme_color": "#ff5722",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3075/3075977.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

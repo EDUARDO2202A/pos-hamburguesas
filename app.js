@@ -167,8 +167,8 @@ document.getElementById('btn-cobrar').addEventListener('click', async () => {
 // 5. SINCRONIZACIÓN CON SUPABASE (NUBE)
 // ==========================================
 // REEMPLAZA ESTOS DOS VALORES CON LOS DE TU PROYECTO EN SUPABASE:
-const SUPABASE_URL = 'https://yepfezdzncnofalgkvet.supabase.co/rest/v1/';
-const SUPABASE_KEY = 'Contraseña12.';
+const SUPABASE_URL = 'https://yepfezdzncnofalgkvet.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InllcGZlemR6bmNub2ZhbGdrdmV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxNzUzMTAsImV4cCI6MjEwOTc1MTMxMH0.DxMx-NuB1CS6NGjhQvu4Q8CimCd4C3_v67zhbGDwXV0';
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 

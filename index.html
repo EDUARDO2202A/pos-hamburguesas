@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Menú - Perritos y Hamburguesas de la 40</title>
+    <title>POS - Perritos y Hamburguesas de la 40</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
 </head>
@@ -41,10 +41,14 @@
             <div class="ticket-header">
                 <h2>Orden Actual</h2>
             </div>
+
+            <!-- Botón de sincronización hacia Supabase -->
+            <button id="btn-sync" style="background: #2196f3; color: white; border: none; padding: 15px; font-weight: bold; font-size: 1rem; cursor: pointer;">🔄 Sincronizar a la Nube</button>
+            
             <ul id="ticket-list" class="ticket-list">
-                <!-- Se llena con JS -->
                 <li class="empty-msg">Toca un producto para empezar</li>
             </ul>
+            
             <div class="ticket-footer">
                 <div class="total-row">Total: $<span id="total-price">0.00</span></div>
                 <button class="btn-pay" id="btn-cobrar">COBRAR Y GUARDAR</button>
@@ -65,7 +69,6 @@
                 <button class="btn-note">Sin Aderezo</button>
                 <button class="btn-note">Pico de Gallo</button>
             </div>
-            <!-- Input de texto solo para emergencias muy específicas -->
             <input type="text" id="custom-note" placeholder="Otra nota (opcional)..." class="input-note">
             
             <div class="modal-actions">
@@ -74,11 +77,10 @@
             </div>
         </div>
     </div>
-    <script src="https://yepfezdzncnofalgkvet.supabase.co/rest/v1/"></script>
+    
+<!-- Librerías en orden: 1. Supabase, 2. Dexie, 3. Tu código -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
-    <script src="app.js"></script>
-</body>
-</html>
     <script src="app.js"></script>
 </body>
 </html>
