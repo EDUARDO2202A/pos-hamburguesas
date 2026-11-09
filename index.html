@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <!-- Esta metaetiqueta evita que la tablet haga zoom por error al tocar rápido -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POS Rápido - Hamburguesas</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div class="app-container">
+        
+        <!-- Panel Izquierdo: Menú Ágil -->
+        <main class="menu-section">
+            <h2 class="category-title">Hamburguesas</h2>
+            <div class="btn-grid">
+                <button class="btn-product item-burger" data-name="Sencilla" data-price="45">Sencilla<br><span>$45</span></button>
+                <button class="btn-product item-burger" data-name="Especial" data-price="60">Especial<br><span>$60</span></button>
+                <button class="btn-product item-burger" data-name="Doble" data-price="75">Doble<br><span>$75</span></button>
+            </div>
+
+            <h2 class="category-title">Hot Dogs</h2>
+            <div class="btn-grid">
+                <button class="btn-product item-hotdog" data-name="Clásico" data-price="25">Clásico<br><span>$25</span></button>
+                <button class="btn-product item-hotdog" data-name="Jumbo" data-price="40">Jumbo<br><span>$40</span></button>
+                <button class="btn-product item-hotdog" data-name="Con Tocino" data-price="35">Con Tocino<br><span>$35</span></button>
+            </div>
+
+            <h2 class="category-title">Bebidas</h2>
+            <div class="btn-grid">
+                <button class="btn-product item-drink" data-name="Refresco 600ml" data-price="25">Refresco<br><span>$25</span></button>
+                <button class="btn-product item-drink" data-name="Agua Sabor" data-price="20">Agua<br><span>$20</span></button>
+            </div>
+        </main>
+
+        <!-- Panel Derecho: Ticket de Cobro -->
+        <aside class="ticket-section">
+            <div class="ticket-header">
+                <h2>Cuenta Actual</h2>
+            </div>
+            
+            <ul id="ticket-list" class="ticket-list">
+                <!-- Aquí se inyectarán los productos con JavaScript -->
+                <li class="empty-msg">Toca un producto para empezar</li>
+            </ul>
+            
+            <div class="ticket-footer">
+                <div class="total-row">Total: $<span id="total-price">0.00</span></div>
+                <button class="btn-pay" id="btn-cobrar">COBRAR Y GUARDAR</button>
+            </div>
+        </aside>
+
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>

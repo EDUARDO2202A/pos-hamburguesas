@@ -1,0 +1,133 @@
+/* Reset básico para evitar márgenes extraños */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    user-select: none; /* Evita que el texto se seleccione al tocar rápido */
+}
+
+html, body {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden; /* Evita el scroll global */
+    background-color: #f0f2f5;
+}
+
+/* Contenedor Principal dividido en 2 columnas: 70% Menú, 30% Ticket */
+.app-container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+}
+
+/* ---------- PANEL IZQUIERDO (MENÚ) ---------- */
+.menu-section {
+    width: 70%;
+    padding: 20px;
+    overflow-y: auto; /* Permite scroll solo en el menú si hay muchos productos */
+}
+
+.category-title {
+    color: #333;
+    font-size: 1.2rem;
+    margin: 15px 0 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+}
+
+.btn-product {
+    border: none;
+    border-radius: 12px;
+    padding: 15px 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    min-height: 90px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.1s;
+}
+
+.btn-product:active {
+    transform: scale(0.95);
+}
+
+.btn-product span {
+    font-size: 0.9rem;
+    font-weight: normal;
+    opacity: 0.9;
+}
+
+/* Colores por categoría para rápida identificación visual */
+.item-burger { background-color: #ff5722; } /* Naranja */
+.item-hotdog { background-color: #ffb300; } /* Amarillo Oscuro */
+.item-drink  { background-color: #03a9f4; } /* Azul */
+
+
+/* ---------- PANEL DERECHO (TICKET) ---------- */
+.ticket-section {
+    width: 30%;
+    background-color: #ffffff;
+    border-left: 2px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.05);
+}
+
+.ticket-header {
+    background-color: #333;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+
+.ticket-list {
+    flex-grow: 1; /* Ocupa todo el espacio restante disponible */
+    overflow-y: auto;
+    padding: 15px;
+    list-style: none;
+}
+
+.empty-msg {
+    color: #999;
+    text-align: center;
+    margin-top: 20px;
+    font-style: italic;
+}
+
+.ticket-footer {
+    padding: 20px;
+    background-color: #fafafa;
+    border-top: 2px solid #eee;
+}
+
+.total-row {
+    font-size: 1.8rem;
+    font-weight: bold;
+    text-align: right;
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+.btn-pay {
+    width: 100%;
+    background-color: #4caf50; /* Verde éxito */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 20px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-pay:active {
+    background-color: #388e3c;
+}
