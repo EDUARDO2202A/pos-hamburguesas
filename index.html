@@ -2,9 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- Esta metaetiqueta evita que la tablet haga zoom por error al tocar rápido -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POS Rápido - Hamburguesas</title>
+    <title>Menú - Perritos y Hamburguesas de la 40</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
 </head>
@@ -13,38 +12,39 @@
         
         <!-- Panel Izquierdo: Menú Ágil -->
         <main class="menu-section">
-            <h2 class="category-title">Hamburguesas</h2>
+            <h2 class="category-title">Perritos 🌭</h2>
             <div class="btn-grid">
-                <button class="btn-product item-burger" data-name="Sencilla" data-price="45">Sencilla<br><span>$45</span></button>
-                <button class="btn-product item-burger" data-name="Especial" data-price="60">Especial<br><span>$60</span></button>
-                <button class="btn-product item-burger" data-name="Doble" data-price="75">Doble<br><span>$75</span></button>
+                <button class="btn-product item-hotdog" data-name="Perrito Sencillo" data-price="12">Sencillo<br><span>$12</span></button>
+                <button class="btn-product item-hotdog" data-name="Perrito Especial" data-price="25">Especial<br><span>$25</span></button>
             </div>
 
-            <h2 class="category-title">Hot Dogs</h2>
+            <h2 class="category-title">Hamburguesas 🍔</h2>
             <div class="btn-grid">
-                <button class="btn-product item-hotdog" data-name="Clásico" data-price="25">Clásico<br><span>$25</span></button>
-                <button class="btn-product item-hotdog" data-name="Jumbo" data-price="40">Jumbo<br><span>$40</span></button>
-                <button class="btn-product item-hotdog" data-name="Con Tocino" data-price="35">Con Tocino<br><span>$35</span></button>
+                <button class="btn-product item-burger" data-name="Burger Sencilla" data-price="45">Sencilla<br><span>$45</span></button>
+                <button class="btn-product item-burger" data-name="Burger Especial" data-price="50">Especial<br><span>$50</span></button>
+                <button class="btn-product item-burger" data-name="Burger Súper" data-price="60">Súper<br><span>$60</span></button>
+                <button class="btn-product item-burger" data-name="Burger Extra" data-price="70">Extra<br><span>$70</span></button>
+                <button class="btn-product item-burger" data-name="Burger Hawaiana" data-price="60">Hawaiana<br><span>$60</span></button>
             </div>
 
-            <h2 class="category-title">Bebidas</h2>
+            <h2 class="category-title">Tortas y Tacos 🌮</h2>
             <div class="btn-grid">
-                <button class="btn-product item-drink" data-name="Refresco 600ml" data-price="25">Refresco<br><span>$25</span></button>
-                <button class="btn-product item-drink" data-name="Agua Sabor" data-price="20">Agua<br><span>$20</span></button>
+                <button class="btn-product item-torta" data-name="Torta Carnitas" data-price="40">Torta Carnitas<br><span>$40</span></button>
+                <button class="btn-product item-torta" data-name="Torta Jamón/Queso" data-price="35">Torta Jamón<br><span>$35</span></button>
+                <button class="btn-product item-torta" data-name="Tacos Carnitas" data-price="20">Tacos<br><span>$20</span></button>
+                <button class="btn-product item-torta" data-name="Kilo Carnitas" data-price="350">Kilo Carnitas<br><span>$350</span></button>
             </div>
         </main>
 
         <!-- Panel Derecho: Ticket de Cobro -->
         <aside class="ticket-section">
             <div class="ticket-header">
-                <h2>Cuenta Actual</h2>
+                <h2>Orden Actual</h2>
             </div>
-            
             <ul id="ticket-list" class="ticket-list">
-                <!-- Aquí se inyectarán los productos con JavaScript -->
+                <!-- Se llena con JS -->
                 <li class="empty-msg">Toca un producto para empezar</li>
             </ul>
-            
             <div class="ticket-footer">
                 <div class="total-row">Total: $<span id="total-price">0.00</span></div>
                 <button class="btn-pay" id="btn-cobrar">COBRAR Y GUARDAR</button>
@@ -52,7 +52,33 @@
         </aside>
 
     </div>
-    
+
+    <!-- Modal para Mañosidades (Modificadores Rápidos) -->
+    <div id="modal-notas" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 id="modal-product-name">Producto</h3>
+            <div class="btn-grid-notes">
+                <button class="btn-note">Sin Cebolla</button>
+                <button class="btn-note">Sin Tomate</button>
+                <button class="btn-note">Sin Verdura</button>
+                <button class="btn-note">Solo Catsup</button>
+                <button class="btn-note">Sin Aderezo</button>
+                <button class="btn-note">Pico de Gallo</button>
+            </div>
+            <!-- Input de texto solo para emergencias muy específicas -->
+            <input type="text" id="custom-note" placeholder="Otra nota (opcional)..." class="input-note">
+            
+            <div class="modal-actions">
+                <button id="btn-delete-item" class="btn-danger">Eliminar</button>
+                <button id="btn-save-note" class="btn-success">Guardar</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://yepfezdzncnofalgkvet.supabase.co/rest/v1/"></script>
+    <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
     <script src="app.js"></script>
 </body>
 </html>
