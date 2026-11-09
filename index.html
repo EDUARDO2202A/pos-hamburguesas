@@ -8,8 +8,18 @@
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
-    <div class="app-container">
-        
+
+    <!-- Pestañas principales -->
+    <nav class="top-tabs">
+        <button type="button" id="tab-vender" class="tab-btn active">➕ Nuevo pedido</button>
+        <button type="button" id="tab-pendientes" class="tab-btn">
+            📋 Pendientes <span id="badge-pendientes" class="tab-badge zero">0</span>
+        </button>
+    </nav>
+
+    <!-- VISTA 1: Agregar pedidos -->
+    <div id="view-vender" class="app-container">
+
         <!-- Panel Izquierdo: Menú Ágil -->
         <main class="menu-section">
             <h2 class="category-title">Perritos 🌭</h2>
@@ -32,7 +42,8 @@
                 <button class="btn-product item-torta" data-name="Torta Carnitas" data-price="40">Torta Carnitas<br><span>$40</span></button>
                 <button class="btn-product item-torta" data-name="Torta Jamón/Queso" data-price="35">Torta Jamón<br><span>$35</span></button>
                 <button class="btn-product item-torta" data-name="Tacos Carnitas" data-price="20">Tacos<br><span>$20</span></button>
-                <button class="btn-product item-torta" data-name="Kilo Carnitas" data-price="350">Kilo Carnitas<br><span>$350</span></button>
+                <!-- Botón de carnitas modificado para venta a granel -->
+                <button class="btn-product item-torta" data-name="Carnitas" data-price="350" data-type="granel">Carnitas (Menudeo)<br><span>Por peso</span></button>
             </div>
         </main>
 
@@ -40,15 +51,16 @@
         <aside class="ticket-section">
             <div class="ticket-header">
                 <h2>Orden Actual</h2>
+                <!-- NUEVO: Campo para nombre del cliente -->
+                <input type="text" id="nombre-cliente" class="input-cliente" placeholder="👤 Nombre del cliente (opcional)..." autocomplete="off">
             </div>
 
-            <!-- Botón de sincronización hacia Supabase -->
-            <button id="btn-sync" style="background: #2196f3; color: white; border: none; padding: 15px; font-weight: bold; font-size: 1rem; cursor: pointer;">🔄 Sincronizar a la Nube</button>
-            
+            <button id="btn-sync" class="btn-sync">🔄 Subir datos a la Nube</button>
+
             <ul id="ticket-list" class="ticket-list">
                 <li class="empty-msg">Toca un producto para empezar</li>
             </ul>
-            
+
             <div class="ticket-footer">
                 <div class="total-row">Total: $<span id="total-price">0.00</span></div>
                 <button class="btn-pay" id="btn-cobrar">COBRAR Y GUARDAR</button>
@@ -57,28 +69,97 @@
 
     </div>
 
-    <!-- Modal para Mañosidades (Modificadores Rápidos) -->
+    <!-- VISTA 2: Pedidos pendientes -->
+    <section id="view-pedidos" class="pedidos-section hidden">
+        <div class="pedidos-top">
+            <h2>Pedidos por hacer</h2>
+            <button type="button" id="btn-volver" class="btn-volver">⬅ Volver a agregar pedidos</button>
+        </div>
+        <div id="pedidos-grid" class="pedidos-grid"></div>
+        <p id="sin-pendientes" class="sin-pendientes hidden">🎉 No hay pedidos pendientes</p>
+    </section>
+
+    <!-- Modal 1: Modal Normal para Cantidad y Mañosidades -->
     <div id="modal-notas" class="modal-overlay hidden">
         <div class="modal-content">
             <h3 id="modal-product-name">Producto</h3>
+
+            <div class="qty-box">
+                <label>Cantidad total:</label>
+                <div class="qty-controls">
+                    <button type="button" id="btn-qty-minus" class="btn-qty">-</button>
+                    <span id="modal-qty-val">1</span>
+                    <button type="button" id="btn-qty-plus" class="btn-qty">+</button>
+                </div>
+            </div>
+
+            <div class="quick-qty-row">
+                <button type="button" class="btn-quick-qty" data-add="2">+2</button>
+                <button type="button" class="btn-quick-qty" data-add="3">+3</button>
+                <button type="button" class="btn-quick-qty" data-add="5">+5</button>
+                <button type="button" class="btn-quick-qty" data-set="1">Reset (1)</button>
+            </div>
+
+            <hr class="modal-divider">
+
+            <div class="notes-header">
+                <span>¿Alguna modificación?</span>
+                <div id="split-box" class="split-box hidden">
+                    <label>¿A cuántos?</label>
+                    <button type="button" id="btn-split-minus" class="btn-qty-sm">-</button>
+                    <span id="modal-split-val">1</span>
+                    <button type="button" id="btn-split-plus" class="btn-qty-sm">+</button>
+                </div>
+            </div>
+
             <div class="btn-grid-notes">
-                <button class="btn-note">Sin Cebolla</button>
-                <button class="btn-note">Sin Tomate</button>
-                <button class="btn-note">Sin Verdura</button>
-                <button class="btn-note">Solo Catsup</button>
-                <button class="btn-note">Sin Aderezo</button>
-                <button class="btn-note">Pico de Gallo</button>
+                <button type="button" class="btn-note">Sin Cebolla</button>
+                <button type="button" class="btn-note">Sin picante</button>
+                <button type="button" class="btn-note">Sin Verdura</button>
+                <button type="button" class="btn-note">Solo Catsup/Mayonesa</button>
+                <button type="button" class="btn-note">Sin ensalada</button>
+                <button type="button" class="btn-note">Pan y salchicha</button>
             </div>
             <input type="text" id="custom-note" placeholder="Otra nota (opcional)..." class="input-note">
-            
+
             <div class="modal-actions">
-                <button id="btn-delete-item" class="btn-danger">Eliminar</button>
-                <button id="btn-save-note" class="btn-success">Guardar</button>
+                <button type="button" id="btn-cancel-modal" class="btn-danger">Cancelar</button>
+                <button type="button" id="btn-save-note" class="btn-success">Agregar al Ticket</button>
             </div>
         </div>
     </div>
-    
-<!-- Librerías en orden: 1. Supabase, 2. Dexie, 3. Tu código -->
+
+    <!-- NUEVO: Modal 2: Venta a Granel (Por Peso) -->
+    <div id="modal-granel" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 id="modal-granel-name">Carnitas a Granel</h3>
+            
+            <div class="granel-box">
+                <label>¿De a cuánto? ($ Pesos)</label>
+                <div class="granel-input-group">
+                    <span class="currency-symbol">$</span>
+                    <!-- Empieza en $70 -->
+                    <input type="number" id="input-granel-pesos" value="70" min="10" step="10">
+                </div>
+                <!-- Barrita deslizable -->
+                <input type="range" id="slider-granel-pesos" min="70" max="700" step="10" value="70" class="slider-granel">
+            </div>
+
+            <div class="gramos-result">
+                <span>Equivale aprox. a:</span>
+                <strong id="granel-gramos">200g</strong>
+            </div>
+
+            <hr class="modal-divider">
+            <input type="text" id="custom-note-granel" placeholder="Alguna nota (opcional)..." class="input-note">
+            
+            <div class="modal-actions">
+                <button type="button" id="btn-cancel-granel" class="btn-danger">Cancelar</button>
+                <button type="button" id="btn-save-granel" class="btn-success">Agregar al Ticket</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
     <script src="app.js"></script>

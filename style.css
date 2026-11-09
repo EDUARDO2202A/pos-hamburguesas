@@ -1,56 +1,98 @@
-/* Reset básico para evitar márgenes extraños */
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     user-select: none;
 }
 
-html, body {
-    height: 100vh;
-    width: 100vw;
-    overflow: hidden;
+body {
     background-color: #f0f2f5;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Contenedor Principal dividido en 2 columnas: 70% Menú, 30% Ticket */
+/* ==========================================
+   PESTAÑAS SUPERIORES
+   ========================================== */
+.top-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 6px;
+    background: #222;
+    flex: 0 0 54px;
+}
+
+.tab-btn {
+    flex: 1;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #ccc;
+    background: #3a3a3a;
+}
+
+.tab-btn.active {
+    background: #ff9800;
+    color: #fff;
+}
+
+.tab-badge {
+    display: inline-block;
+    min-width: 22px;
+    padding: 1px 6px;
+    margin-left: 6px;
+    border-radius: 11px;
+    background: #e53935;
+    color: #fff;
+    font-size: 0.85rem;
+}
+
+.tab-badge.zero {
+    background: #666;
+}
+
 .app-container {
     display: flex;
-    height: 100%;
-    width: 100%;
+    flex: 1;
+    min-height: 0;
 }
 
-/* ---------- PANEL IZQUIERDO (MENÚ) ---------- */
+/* ==========================================
+   PANEL IZQUIERDO: MENÚ
+   ========================================== */
 .menu-section {
-    width: 70%;
+    flex: 65%;
     padding: 20px;
     overflow-y: auto;
 }
 
 .category-title {
-    color: #333;
-    font-size: 1.2rem;
     margin: 15px 0 10px 0;
+    color: #333;
+    font-size: 1.3rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
 .btn-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 15px;
+    gap: 12px;
 }
 
 .btn-product {
     border: none;
     border-radius: 12px;
-    padding: 15px 10px;
+    padding: 20px 10px;
     font-size: 1.1rem;
     font-weight: bold;
     color: white;
     cursor: pointer;
-    min-height: 90px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     transition: transform 0.1s;
 }
@@ -60,52 +102,102 @@ html, body {
 }
 
 .btn-product span {
-    font-size: 0.9rem;
+    display: block;
+    font-size: 0.95rem;
+    margin-top: 5px;
     font-weight: normal;
-    opacity: 0.9;
 }
 
-/* Colores por categoría */
-.item-burger { background-color: #ff5722; } /* Naranja */
-.item-hotdog { background-color: #ffb300; } /* Amarillo Oscuro */
-.item-drink  { background-color: #03a9f4; } /* Azul */
-.item-torta  { background-color: #8d6e63; } /* Café suave */
+.item-hotdog { background-color: #ffb300; color: #222; }
+.item-burger { background-color: #ff5722; }
+.item-torta  { background-color: #8d6e63; }
 
-
-/* ---------- PANEL DERECHO (TICKET) ---------- */
+/* ==========================================
+   PANEL DERECHO: TICKET
+   ========================================== */
 .ticket-section {
-    width: 30%;
-    background-color: #ffffff;
-    border-left: 2px solid #ddd;
+    flex: 35%;
+    background: white;
     display: flex;
     flex-direction: column;
-    box-shadow: -5px 0 15px rgba(0,0,0,0.05);
+    border-left: 2px solid #ddd;
+    box-shadow: -4px 0 10px rgba(0,0,0,0.05);
+    min-height: 0;
 }
 
 .ticket-header {
-    background-color: #333;
+    background: #333;
     color: white;
     padding: 15px;
     text-align: center;
 }
 
-.ticket-list {
-    flex-grow: 1;
-    overflow-y: auto;
+.btn-sync {
+    background: #2196f3;
+    color: white;
+    border: none;
     padding: 15px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.btn-sync:disabled {
+    opacity: 0.7;
+}
+
+.ticket-list {
+    flex: 1;
     list-style: none;
+    padding: 15px;
+    overflow-y: auto;
 }
 
 .empty-msg {
-    color: #999;
     text-align: center;
-    margin-top: 20px;
+    color: #999;
+    margin-top: 40px;
     font-style: italic;
+}
+
+.ticket-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.ticket-item:active {
+    background-color: #f9f9f9;
+}
+
+.ticket-item-qty {
+    background: #333;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: bold;
+    margin-right: 6px;
+}
+
+.ticket-item-notes {
+    display: block;
+    font-size: 0.85rem;
+    color: #e65100;
+    margin-top: 4px;
+    font-weight: bold;
+}
+
+.ticket-item-price {
+    font-weight: bold;
+    font-size: 1.1rem;
 }
 
 .ticket-footer {
     padding: 20px;
-    background-color: #fafafa;
+    background: #fafafa;
     border-top: 2px solid #eee;
 }
 
@@ -114,17 +206,17 @@ html, body {
     font-weight: bold;
     text-align: right;
     margin-bottom: 15px;
-    color: #2c3e50;
+    color: #222;
 }
 
 .btn-pay {
     width: 100%;
+    padding: 18px;
     background-color: #4caf50;
     color: white;
     border: none;
-    border-radius: 8px;
-    padding: 20px;
-    font-size: 1.5rem;
+    border-radius: 10px;
+    font-size: 1.3rem;
     font-weight: bold;
     cursor: pointer;
 }
@@ -133,92 +225,404 @@ html, body {
     background-color: #388e3c;
 }
 
-/* ---------- ITEMS DEL TICKET ---------- */
-.ticket-item {
-    background: #f9f9f9;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    border: 1px solid #eee;
+/* ==========================================
+   VISTA: PEDIDOS PENDIENTES
+   ========================================== */
+.pedidos-section {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.pedidos-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+
+.pedidos-top h2 {
+    color: #333;
+    text-transform: uppercase;
+    font-size: 1.3rem;
+}
+
+.btn-volver {
+    background: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 20px;
+    font-size: 1rem;
+    font-weight: bold;
     cursor: pointer;
+}
+
+.btn-volver:active {
+    background: #1976d2;
+}
+
+.pedidos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 14px;
+}
+
+.pedido-card {
+    background: white;
+    border-radius: 12px;
+    border-left: 6px solid #ff9800;
+    padding: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
     display: flex;
     flex-direction: column;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    gap: 10px;
 }
-.ticket-item-header {
+
+.pedido-card.urgente {
+    border-left-color: #e53935;
+}
+
+.pedido-head {
     display: flex;
     justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.pedido-num {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #222;
+}
+
+.pedido-tiempo {
+    font-size: 0.85rem;
+    color: #777;
+    text-align: right;
+}
+
+.pedido-card.urgente .pedido-tiempo {
+    color: #e53935;
+    font-weight: bold;
+}
+
+.pedido-items {
+    list-style: none;
+    border-top: 1px solid #eee;
+    padding-top: 8px;
+}
+
+.pedido-items li {
+    padding: 6px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.pedido-total {
+    text-align: right;
     font-weight: bold;
     font-size: 1.1rem;
 }
-.ticket-item-note {
-    font-size: 0.9rem;
-    color: #e64a19;
-    margin-top: 5px;
-    font-style: italic;
+
+.btn-listo {
+    width: 100%;
+    padding: 14px;
+    background: #43a047;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-/* ---------- MODAL DE NOTAS Y MAÑOSIDADES ---------- */
+.btn-listo:active {
+    background: #2e7d32;
+}
+
+.sin-pendientes {
+    text-align: center;
+    color: #888;
+    margin-top: 60px;
+    font-size: 1.2rem;
+}
+
+/* ==========================================
+   MODAL EMERGENTE (CANTIDAD Y MAÑOSIDADES)
+   ========================================== */
+.hidden {
+    display: none !important;
+}
+
 .modal-overlay {
     position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0,0,0,0.6);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.65);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
 }
-.hidden { display: none !important; }
 
 .modal-content {
     background: white;
-    padding: 20px;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 500px;
+    padding: 24px;
+    border-radius: 16px;
+    width: 92%;
+    max-width: 480px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
-.modal-content h3 { margin-bottom: 15px; text-align: center; font-size: 1.3rem;}
 
-.btn-grid-notes {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+.modal-content h3 {
     margin-bottom: 15px;
+    font-size: 1.4rem;
+    color: #222;
+    text-align: center;
 }
-.btn-note {
-    padding: 15px 5px;
-    background: #e0e0e0;
+
+.qty-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f5f5f5;
+    padding: 10px 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.qty-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.btn-qty {
+    width: 45px;
+    height: 45px;
+    font-size: 1.5rem;
+    font-weight: bold;
     border: none;
     border-radius: 8px;
+    background: #ff5722;
+    color: white;
+    cursor: pointer;
+}
+
+#modal-qty-val {
+    font-size: 1.5rem;
+    min-width: 30px;
+    text-align: center;
+}
+
+.quick-qty-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.btn-quick-qty {
+    padding: 10px 5px;
+    border: 1px solid #ccc;
+    background: #fff;
+    border-radius: 8px;
+    font-weight: bold;
     font-size: 1rem;
     cursor: pointer;
 }
-.btn-note.active {
-    background: #ffb300;
-    color: white;
+
+.btn-quick-qty:active {
+    background: #e0e0e0;
+}
+
+.modal-divider {
+    border: 0;
+    border-top: 1px solid #ddd;
+    margin: 12px 0;
+}
+
+.notes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
     font-weight: bold;
 }
+
+.split-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff3e0;
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 1px solid #ffb74d;
+    font-size: 0.95rem;
+}
+
+.btn-qty-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    background: #fb8c00;
+    color: white;
+    cursor: pointer;
+}
+
+.btn-grid-notes {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.btn-note {
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    background: white;
+    font-weight: bold;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.btn-note.active {
+    background: #ffecb3;
+    border-color: #ff9800;
+    color: #e65100;
+}
+
 .input-note {
     width: 100%;
     padding: 12px;
-    font-size: 1rem;
     border: 1px solid #ccc;
     border-radius: 8px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    font-size: 1rem;
+    user-select: text;
 }
+
 .modal-actions {
     display: flex;
     gap: 10px;
 }
-.btn-danger, .btn-success {
+
+.modal-actions button {
     flex: 1;
-    padding: 15px;
+    padding: 14px;
     border: none;
-    border-radius: 8px;
-    color: white;
-    font-size: 1.2rem;
+    border-radius: 10px;
     font-weight: bold;
+    font-size: 1.05rem;
+    color: white;
     cursor: pointer;
 }
-.btn-danger { background: #f44336; }
-.btn-success { background: #4caf50; }
+
+.btn-danger  { background: #e53935; }
+.btn-success { background: #43a047; }
+
+/* ==========================================
+   NUEVOS ESTILOS: NOMBRE CLIENTE Y GRANEL
+   ========================================== */
+
+/* Campo de Nombre en el Ticket */
+.input-cliente {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: #444;
+    color: white;
+    outline: none;
+}
+.input-cliente::placeholder { color: #aaa; }
+.input-cliente:focus { background: #555; }
+
+.pedido-nombre-cliente {
+    display: block;
+    color: #1976d2;
+    font-size: 1.1rem;
+    margin-top: 4px;
+}
+
+/* Modal Granel (Por Peso) */
+.granel-box {
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+.granel-box label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+.granel-input-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.currency-symbol {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #4caf50;
+    margin-right: 5px;
+}
+#input-granel-pesos {
+    width: 120px;
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    padding: 5px;
+    outline: none;
+}
+#input-granel-pesos:focus {
+    border-color: #4caf50;
+}
+.slider-granel {
+    width: 100%;
+    height: 10px;
+    background: #ddd;
+    border-radius: 5px;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+}
+.slider-granel::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #ff5722;
+    cursor: pointer;
+}
+.gramos-result {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 15px;
+}
+#granel-gramos {
+    font-size: 1.8rem;
+    color: #e65100;
+    display: block;
+}
