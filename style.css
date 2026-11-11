@@ -132,20 +132,6 @@ body {
     text-align: center;
 }
 
-.btn-sync {
-    background: #2196f3;
-    color: white;
-    border: none;
-    padding: 15px;
-    font-weight: bold;
-    font-size: 1rem;
-    cursor: pointer;
-}
-
-.btn-sync:disabled {
-    opacity: 0.7;
-}
-
 .ticket-list {
     flex: 1;
     list-style: none;
@@ -625,4 +611,425 @@ body {
     font-size: 1.8rem;
     color: #e65100;
     display: block;
+}
+
+/* ==========================================
+   VISTA: REGISTRO DE VENTAS
+   ========================================== */
+.ventas-section > * {
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.ventas-titulo {
+    color: #333;
+    text-transform: uppercase;
+    font-size: 1.3rem;
+    margin-bottom: 14px;
+}
+
+/* Botones Por día / Por semana / Por mes */
+.periodo-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.periodo-btn {
+    padding: 14px 8px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    background: white;
+    font-size: 1.05rem;
+    font-weight: bold;
+    color: #555;
+    cursor: pointer;
+}
+
+.periodo-btn.active {
+    background: #ff9800;
+    border-color: #ff9800;
+    color: white;
+}
+
+/* Navegación de fechas */
+.fecha-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.btn-nav {
+    width: 50px;
+    height: 50px;
+    flex: 0 0 50px;
+    border: none;
+    border-radius: 10px;
+    background: #333;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.btn-nav:active { background: #555; }
+
+.fecha-centro {
+    flex: 1;
+    text-align: center;
+    background: white;
+    border-radius: 10px;
+    padding: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.ventas-rango {
+    font-size: 1.15rem;
+    font-weight: bold;
+    color: #222;
+    text-transform: capitalize;
+    margin-bottom: 4px;
+}
+
+.input-fecha {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.95rem;
+    user-select: text;
+}
+
+.btn-hoy {
+    flex: 0 0 auto;
+    height: 50px;
+    padding: 0 14px;
+    border: none;
+    border-radius: 10px;
+    background: #2196f3;
+    color: white;
+    font-weight: bold;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.btn-hoy:active { background: #1976d2; }
+
+/* Resumen en texto sencillo */
+.resumen-texto {
+    background: #fffde7;
+    border-left: 6px solid #fbc02d;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.resumen-texto p {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.resumen-texto p:last-child { margin-bottom: 0; }
+
+.resumen-texto p.resumen-principal {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #222;
+}
+
+/* Subir a la nube */
+.nube-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.nube-estado {
+    flex: 1 1 240px;
+    font-size: 1.05rem;
+    line-height: 1.4;
+    color: #444;
+}
+
+.btn-nube {
+    flex: 0 0 auto;
+    padding: 16px 22px;
+    border: none;
+    border-radius: 10px;
+    background: #2196f3;
+    color: white;
+    font-size: 1.05rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-nube:active { background: #1976d2; }
+
+.btn-nube:disabled {
+    background: #bdbdbd;
+    cursor: default;
+}
+
+/* Tablas */
+.ventas-subtitulo {
+    margin: 18px 0 8px 0;
+    font-size: 1.15rem;
+    color: #333;
+}
+
+.tabla-wrap {
+    overflow-x: auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.tabla-ventas {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem;
+}
+
+.tabla-ventas th {
+    background: #333;
+    color: white;
+    text-align: left;
+    padding: 12px;
+    white-space: nowrap;
+}
+
+.tabla-ventas td {
+    padding: 11px 12px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+}
+
+.tabla-ventas tbody tr:nth-child(even) { background: #fafafa; }
+
+.tabla-ventas .num {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.tabla-ventas tfoot td {
+    font-weight: bold;
+    background: #fff3e0;
+    border-top: 2px solid #ff9800;
+    border-bottom: none;
+}
+
+.tabla-ventas .estado-ok { color: #2e7d32; font-weight: bold; }
+.tabla-ventas .estado-falta { color: #e65100; font-weight: bold; }
+/* ==========================================
+   DISEÑO RESPONSIVE (MÓVILES Y PANTALLAS PEQUEÑAS)
+   ========================================== */
+@media (max-width: 800px) {
+    /* 1. Pestañas superiores más compactas */
+    .top-tabs {
+        padding: 4px;
+        gap: 4px;
+    }
+    .tab-btn {
+        font-size: 0.9rem;
+        padding: 8px 4px;
+    }
+
+    /* 2. Vista Vender: Menú arriba, Ticket abajo */
+    .app-container {
+        flex-direction: column;
+    }
+    
+    .menu-section {
+        flex: 1; /* Crece para llenar el espacio superior */
+        padding: 12px;
+    }
+    
+    /* Botones de productos más pequeños para que quepan 3 o 4 por fila */
+    .btn-grid {
+        grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
+        gap: 8px;
+    }
+    .btn-product {
+        padding: 12px 5px;
+        font-size: 1rem;
+    }
+    .btn-product span {
+        font-size: 0.9rem;
+    }
+    
+    .ticket-section {
+        flex: none;
+        height: 45vh; /* El ticket ocupa el 45% inferior de la pantalla */
+        border-left: none;
+        border-top: 3px solid #ddd;
+        box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+    }
+    .ticket-header {
+        padding: 10px;
+    }
+    .ticket-footer {
+        padding: 12px 15px;
+    }
+    .total-row {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+    }
+    .btn-pay {
+        padding: 14px;
+        font-size: 1.15rem;
+    }
+
+    /* 3. Ajustes del Modal para que no se desborde */
+    .quick-qty-row {
+        grid-template-columns: repeat(2, 1fr); /* 2x2 en lugar de 4 en línea */
+    }
+    .btn-grid-notes {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    }
+
+    /* 4. Ajustes para las vistas de Pendientes y Ventas */
+    .periodo-tabs {
+        grid-template-columns: 1fr; /* Botones de Día/Semana/Mes uno debajo de otro */
+    }
+    .pedidos-top {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .btn-volver {
+        width: 100%;
+        text-align: center;
+        margin-top: 10px;
+    }
+    .fecha-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .btn-hoy {
+        flex: 1 1 100%;
+        margin-top: 5px;
+    }
+}
+/* ==========================================
+   NUEVO DASHBOARD DE VENTAS (KPIs y Badges)
+   ========================================== */
+/* Grid de Tarjetas de Impacto */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.kpi-card {
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    border-left: 5px solid #2196f3;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-center;
+}
+.kpi-card.ingresos { border-left-color: #4caf50; }
+.kpi-card.pedidos { border-left-color: #ff9800; }
+.kpi-card.promedio { border-left-color: #9c27b0; }
+
+.kpi-title {
+    font-size: 0.9rem;
+    color: #777;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+.kpi-value {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #222;
+}
+
+/* Píldoras de Estado (Badges) */
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.badge-green { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+.badge-yellow { background: #fff8e1; color: #f57f17; border: 1px solid #ffecb3; }
+.badge-red { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+.badge-blue { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
+
+/* Ajustes a la lista de pedidos en el tablero */
+.detalle-pedido-items {
+    font-size: 1rem;
+    color: #444;
+    line-height: 1.5;
+    margin: 12px 0;
+}
+.detalle-pedido-items b { color: #222; }
+.pedido-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px dashed #ddd;
+}
+.badge-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+/* Recuadro de Productos Vendidos */
+.resumen-productos-card {
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.resumen-productos-card h4 {
+    margin-bottom: 12px;
+    color: #333;
+    font-size: 1.1rem;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 8px;
+    text-transform: uppercase;
+}
+.producto-item-list {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed #eee;
+    font-size: 1.05rem;
+}
+.producto-item-list:last-child {
+    border-bottom: none;
+}
+.prod-cant {
+    font-weight: bold;
+    color: #2196f3;
+    width: 60px;
+}
+.prod-nombre {
+    flex: 1;
+    color: #444;
+}
+.prod-total {
+    font-weight: bold;
+    color: #2e7d32;
+    text-align: right;
 }

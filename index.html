@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POS - Perritos y Hamburguesas de la 40</title>
+    <title>De la 40</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
 </head>
@@ -15,6 +15,7 @@
         <button type="button" id="tab-pendientes" class="tab-btn">
             📋 Pendientes <span id="badge-pendientes" class="tab-badge zero">0</span>
         </button>
+        <button type="button" id="tab-ventas" class="tab-btn">📊 Ventas</button>
     </nav>
 
     <!-- VISTA 1: Agregar pedidos -->
@@ -51,11 +52,9 @@
         <aside class="ticket-section">
             <div class="ticket-header">
                 <h2>Orden Actual</h2>
-                <!-- NUEVO: Campo para nombre del cliente -->
+                <!-- Campo para nombre del cliente -->
                 <input type="text" id="nombre-cliente" class="input-cliente" placeholder="👤 Nombre del cliente (opcional)..." autocomplete="off">
             </div>
-
-            <button id="btn-sync" class="btn-sync">🔄 Subir datos a la Nube</button>
 
             <ul id="ticket-list" class="ticket-list">
                 <li class="empty-msg">Toca un producto para empezar</li>
@@ -77,6 +76,47 @@
         </div>
         <div id="pedidos-grid" class="pedidos-grid"></div>
         <p id="sin-pendientes" class="sin-pendientes hidden">🎉 No hay pedidos pendientes</p>
+    </section>
+
+    <!-- VISTA 3: Registro de ventas (día / semana / mes) -->
+    <section id="view-ventas" class="pedidos-section ventas-section hidden">
+        <h2 class="ventas-titulo">Registro de ventas</h2>
+
+        <!-- ¿De qué periodo quieres ver las ventas? -->
+        <div class="periodo-tabs">
+            <button type="button" class="periodo-btn active" data-periodo="dia">📅 Por día</button>
+            <button type="button" class="periodo-btn" data-periodo="semana">🗓️ Por semana</button>
+            <button type="button" class="periodo-btn" data-periodo="mes">📆 Por mes</button>
+        </div>
+
+        <!-- Moverse entre fechas -->
+        <div class="fecha-nav">
+            <button type="button" id="ventas-anterior" class="btn-nav" aria-label="Anterior">◀</button>
+            <div class="fecha-centro">
+                <div id="ventas-rango" class="ventas-rango">Hoy</div>
+                <input type="date" id="ventas-fecha" class="input-fecha">
+            </div>
+            <button type="button" id="ventas-siguiente" class="btn-nav" aria-label="Siguiente">▶</button>
+            <button type="button" id="ventas-hoy" class="btn-hoy">Ir a hoy</button>
+        </div>
+
+        <!-- Resumen escrito en palabras sencillas -->
+        <div id="ventas-resumen" class="resumen-texto"></div>
+
+        <!-- Subir a la nube -->
+        <div class="nube-card">
+            <p id="nube-estado" class="nube-estado"></p>
+            <button type="button" id="btn-subir-nube" class="btn-nube">☁️ Subir ventas de hoy</button>
+        </div>
+
+        <!-- Tablas -->
+        <div id="ventas-detalle" class="hidden">
+            <h3 class="ventas-subtitulo">¿Qué se vendió?</h3>
+            <div id="tabla-productos" class="tabla-wrap"></div>
+
+            <h3 id="titulo-detalle" class="ventas-subtitulo">Pedidos del día</h3>
+            <div id="tabla-detalle" class="tabla-wrap"></div>
+        </div>
     </section>
 
     <!-- Modal 1: Modal Normal para Cantidad y Mañosidades -->
@@ -129,11 +169,11 @@
         </div>
     </div>
 
-    <!-- NUEVO: Modal 2: Venta a Granel (Por Peso) -->
+    <!-- Modal 2: Venta a Granel (Por Peso) -->
     <div id="modal-granel" class="modal-overlay hidden">
         <div class="modal-content">
             <h3 id="modal-granel-name">Carnitas a Granel</h3>
-            
+
             <div class="granel-box">
                 <label>¿De a cuánto? ($ Pesos)</label>
                 <div class="granel-input-group">
@@ -152,7 +192,7 @@
 
             <hr class="modal-divider">
             <input type="text" id="custom-note-granel" placeholder="Alguna nota (opcional)..." class="input-note">
-            
+
             <div class="modal-actions">
                 <button type="button" id="btn-cancel-granel" class="btn-danger">Cancelar</button>
                 <button type="button" id="btn-save-granel" class="btn-success">Agregar al Ticket</button>

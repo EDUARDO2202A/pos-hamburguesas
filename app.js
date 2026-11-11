@@ -31,8 +31,10 @@ const inputNombreCliente = document.getElementById('nombre-cliente');
 // Elementos Pestañas
 const viewVender = document.getElementById('view-vender');
 const viewPedidos = document.getElementById('view-pedidos');
+const viewVentas = document.getElementById('view-ventas');
 const tabVender = document.getElementById('tab-vender');
 const tabPendientes = document.getElementById('tab-pendientes');
+const tabVentas = document.getElementById('tab-ventas');
 const badgePendientes = document.getElementById('badge-pendientes');
 const pedidosGrid = document.getElementById('pedidos-grid');
 const sinPendientesEl = document.getElementById('sin-pendientes');
@@ -52,6 +54,17 @@ const inputGranelPesos = document.getElementById('input-granel-pesos');
 const sliderGranelPesos = document.getElementById('slider-granel-pesos');
 const textGranelGramos = document.getElementById('granel-gramos');
 const customNoteGranel = document.getElementById('custom-note-granel');
+
+// Elementos Registro de Ventas
+const ventasRangoEl = document.getElementById('ventas-rango');
+const ventasFechaInput = document.getElementById('ventas-fecha');
+const ventasResumenEl = document.getElementById('ventas-resumen');
+const ventasDetalleEl = document.getElementById('ventas-detalle');
+const tablaProductosEl = document.getElementById('tabla-productos');
+const tablaDetalleEl = document.getElementById('tabla-detalle');
+const tituloDetalleEl = document.getElementById('titulo-detalle');
+const nubeEstadoEl = document.getElementById('nube-estado');
+const btnSubirNube = document.getElementById('btn-subir-nube');
 
 // ==========================================
 // 3. ABRIR MODALES AL TOCAR PRODUCTO DEL MENÚ
@@ -301,17 +314,20 @@ document.getElementById('btn-cobrar').addEventListener('click', async () => {
 // 6. PESTAÑAS Y PEDIDOS PENDIENTES
 // ==========================================
 function mostrarVista(vista) {
-    const verPendientes = vista === 'pendientes';
-    viewVender.classList.toggle('hidden', verPendientes);
-    viewPedidos.classList.toggle('hidden', !verPendientes);
-    tabVender.classList.toggle('active', !verPendientes);
-    tabPendientes.classList.toggle('active', verPendientes);
+    viewVender.classList.toggle('hidden', vista !== 'vender');
+    viewPedidos.classList.toggle('hidden', vista !== 'pendientes');
+    viewVentas.classList.toggle('hidden', vista !== 'ventas');
+    tabVender.classList.toggle('active', vista === 'vender');
+    tabPendientes.classList.toggle('active', vista === 'pendientes');
+    tabVentas.classList.toggle('active', vista === 'ventas');
 
-    if (verPendientes) renderizarPendientes();
+    if (vista === 'pendientes') renderizarPendientes();
+    if (vista === 'ventas') renderizarVentas();
 }
 
 tabVender.addEventListener('click', () => mostrarVista('vender'));
 tabPendientes.addEventListener('click', () => mostrarVista('pendientes'));
+tabVentas.addEventListener('click', () => mostrarVista('ventas'));
 document.getElementById('btn-volver').addEventListener('click', () => mostrarVista('vender'));
 
 async function actualizarBadgePendientes() {
@@ -407,72 +423,428 @@ setInterval(() => { if (!viewPedidos.classList.contains('hidden')) renderizarPen
 actualizarBadgePendientes();
 
 // ==========================================
-// 7. SINCRONIZACIÓN CON SUPABASE
+// 7. REGISTRO DE VENTAS (DÍA / SEMANA / MES)
+// ==========================================
+let periodoVentas = 'dia';
+let fechaVentas = inicioDelDia(new Date());
+
+// --- Utilidades de fechas ---
+function inicioDelDia(f) {
+    return new Date(f.getFullYear(), f.getMonth(), f.getDate());
+}
+
+function fechaParaInput(f) {
+    const mm = String(f.getMonth() + 1).padStart(2, '0');
+    const dd = String(f.getDate()).padStart(2, '0');
+    return `${f.getFullYear()}-${mm}-${dd}`;
+}
+
+function fechaDesdeInput(texto) {
+    const [a, m, d] = texto.split('-').map(Number);
+    return new Date(a, m - 1, d);
+}
+
+function textoFecha(f) {
+    return f.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+// Devuelve el inicio (incluido) y el fin (excluido) del periodo elegido.
+// La semana va de lunes a domingo.
+function rangoPeriodo(periodo, ancla) {
+    const a = inicioDelDia(ancla);
+    let inicio, fin;
+
+    if (periodo === 'dia') {
+        inicio = a;
+        fin = new Date(a.getFullYear(), a.getMonth(), a.getDate() + 1);
+    } else if (periodo === 'semana') {
+        const dif = (a.getDay() + 6) % 7; // lunes = 0
+        inicio = new Date(a.getFullYear(), a.getMonth(), a.getDate() - dif);
+        fin = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate() + 7);
+    } else {
+        inicio = new Date(a.getFullYear(), a.getMonth(), 1);
+        fin = new Date(a.getFullYear(), a.getMonth() + 1, 1);
+    }
+    return { inicio, fin };
+}
+
+function periodoEsActual(inicio, fin) {
+    const ahora = Date.now();
+    return ahora >= inicio.getTime() && ahora < fin.getTime();
+}
+
+function describirRango(periodo, inicio, fin) {
+    if (periodo === 'dia') {
+        return periodoEsActual(inicio, fin) ? `Hoy, ${textoFecha(inicio)}` : textoFecha(inicio);
+    }
+    if (periodo === 'semana') {
+        const ultimo = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate() - 1);
+        const corto = { day: 'numeric', month: 'long' };
+        return `Semana del ${inicio.toLocaleDateString('es-MX', corto)} al ${ultimo.toLocaleDateString('es-MX', corto)}`;
+    }
+    return inicio.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+}
+
+// Frase para iniciar el resumen: "Hoy", "Esta semana", "Ese mes"...
+function sujetoDelPeriodo(periodo, inicio, fin) {
+    const actual = periodoEsActual(inicio, fin);
+    if (periodo === 'dia') return actual ? 'Hoy' : `El ${textoFecha(inicio)}`;
+    if (periodo === 'semana') return actual ? 'Esta semana' : 'En esa semana';
+    return actual ? 'Este mes' : 'En ese mes';
+}
+
+// --- Utilidades de texto ---
+function formatoPesos(n) {
+    return Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
+}
+
+function plural(n, singular, pluralTxt) {
+    return n === 1 ? singular : pluralTxt;
+}
+
+function textoGramos(g) {
+    if (g >= 1000) {
+        const kilos = Math.floor(g / 1000);
+        const resto = g % 1000;
+        const base = `${kilos} ${plural(kilos, 'kilo', 'kilos')}`;
+        return resto ? `${base} y ${resto} gramos` : base;
+    }
+    return `${g} gramos`;
+}
+
+function unirConY(lista) {
+    if (lista.length <= 1) return lista.join('');
+    return `${lista.slice(0, -1).join(', ')} y ${lista[lista.length - 1]}`;
+}
+
+// --- Consulta a la base de datos ---
+async function pedidosEnRango(inicio, fin) {
+    return db.pedidos
+        .where('fecha')
+        .between(inicio.toISOString(), fin.toISOString(), true, false)
+        .sortBy('fecha');
+}
+
+// --- Dibujar una tabla ---
+// numericas: posiciones de columnas que se alinean a la derecha
+function dibujarTabla(contenedor, encabezados, filas, pie, numericas = []) {
+    contenedor.innerHTML = '';
+    const tabla = document.createElement('table');
+    tabla.className = 'tabla-ventas';
+
+    const thead = document.createElement('thead');
+    const trHead = document.createElement('tr');
+    encabezados.forEach((texto, i) => {
+        const th = document.createElement('th');
+        th.textContent = texto;
+        if (numericas.includes(i)) th.className = 'num';
+        trHead.appendChild(th);
+    });
+    thead.appendChild(trHead);
+    tabla.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    filas.forEach(fila => {
+        const tr = document.createElement('tr');
+        fila.forEach((celda, i) => {
+            const td = document.createElement('td');
+            const esObjeto = typeof celda === 'object' && celda !== null;
+            td.textContent = esObjeto ? celda.texto : celda;
+            if (esObjeto && celda.clase) td.classList.add(celda.clase);
+            if (numericas.includes(i)) td.classList.add('num');
+            tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    });
+    tabla.appendChild(tbody);
+
+    if (pie) {
+        const tfoot = document.createElement('tfoot');
+        const trPie = document.createElement('tr');
+        pie.forEach((texto, i) => {
+            const td = document.createElement('td');
+            td.textContent = texto;
+            if (numericas.includes(i)) td.className = 'num';
+            trPie.appendChild(td);
+        });
+        tfoot.appendChild(trPie);
+        tabla.appendChild(tfoot);
+    }
+
+    contenedor.appendChild(tabla);
+}
+
+// --- Dibujar todo el registro de ventas ---
+// --- Dibujar todo el registro de ventas (Dashboard Moderno) ---
+// --- Dibujar todo el registro de ventas (Dashboard Moderno) ---
+async function renderizarVentas() {
+    const { inicio, fin } = rangoPeriodo(periodoVentas, fechaVentas);
+
+    // Controles
+    ventasFechaInput.value = fechaParaInput(fechaVentas);
+    ventasRangoEl.textContent = describirRango(periodoVentas, inicio, fin);
+    document.querySelectorAll('.periodo-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.periodo === periodoVentas);
+    });
+
+    // Datos
+    const pedidos = await pedidosEnRango(inicio, fin);
+    const ids = pedidos.map(p => p.id);
+    const detalles = ids.length ? await db.detalle_pedido.where('pedido_id').anyOf(ids).toArray() : [];
+
+    const detallesPorPedido = new Map();
+    detalles.forEach(d => {
+        if (!detallesPorPedido.has(d.pedido_id)) detallesPorPedido.set(d.pedido_id, []);
+        detallesPorPedido.get(d.pedido_id).push(d);
+    });
+
+    const totalVentas = pedidos.reduce((suma, p) => suma + Number(p.total), 0);
+
+    // Totales por producto
+    const productos = new Map();
+    detalles.forEach(d => {
+        const info = productos.get(d.producto) || { cantidad: 0, total: 0, gramos: 0 };
+        info.cantidad += d.cantidad;
+        info.total += d.precio_unitario * d.cantidad;
+        const m = /^(\d+)\s*g\b/.exec(d.notas || '');
+        if (m) info.gramos += parseInt(m[1], 10) * d.cantidad;
+        productos.set(d.producto, info);
+    });
+
+    // Producto Estrella (el que más piezas vendió)
+    let productoEstrella = 'Ninguno';
+    const masVendidos = [...productos.entries()]
+        .filter(([, info]) => info.gramos === 0)
+        .sort((a, b) => b[1].cantidad - a[1].cantidad);
+    
+    if (masVendidos.length > 0) {
+        productoEstrella = `${masVendidos[0][0]} (${masVendidos[0][1].cantidad})`;
+    }
+
+    // --- 1. RENDERIZAR KPIs (Tarjetas de Impacto) ---
+    ventasResumenEl.className = ''; 
+    ventasResumenEl.innerHTML = `
+        <div class="kpi-grid">
+            <div class="kpi-card ingresos">
+                <div class="kpi-title"> Ingresos Totales</div>
+                <div class="kpi-value">${formatoPesos(totalVentas)}</div>
+            </div>
+            <div class="kpi-card pedidos">
+                <div class="kpi-title"> Total Pedidos</div>
+                <div class="kpi-value">${pedidos.length}</div>
+            </div>
+           
+            <div class="kpi-card">
+                <div class="kpi-title"> Más Vendido</div>
+                <div class="kpi-value" style="font-size:1.2rem;">${productoEstrella}</div>
+            </div>
+        </div>
+    `;
+
+    // --- NUEVO: RECUADRO DE RESUMEN DE PRODUCTOS VENDIDOS ---
+    const productosOrdenados = [...productos.entries()].sort((a, b) => b[1].total - a[1].total);
+    
+    if (productosOrdenados.length > 0) {
+        let listaHTML = '';
+        productosOrdenados.forEach(([nombre, info]) => {
+            const cuantos = info.gramos > 0 
+                ? `${textoGramos(info.gramos)}` // Muestra ej. "200 gramos"
+                : `${info.cantidad}x`;          // Muestra ej. "5x"
+            
+            listaHTML += `
+                <div class="producto-item-list">
+                    <span class="prod-cant">${cuantos}</span>
+                    <span class="prod-nombre">${nombre}</span>
+                    <span class="prod-total">${formatoPesos(info.total)}</span>
+                </div>
+            `;
+        });
+
+        ventasResumenEl.innerHTML += `
+            <div class="resumen-productos-card">
+                <h4>Desglose de total de venta</h4>
+                ${listaHTML}
+            </div>
+        `;
+    }
+
+    // --- Tablas y Detalles ---
+    ventasDetalleEl.classList.toggle('hidden', pedidos.length === 0);
+
+    if (pedidos.length > 0) {
+        tablaProductosEl.innerHTML = ''; // Limpiamos la tabla vieja porque ya tenemos el nuevo recuadro
+
+        // Tarjetas de Pedidos Individuales
+        if (periodoVentas === 'dia') {
+            tituloDetalleEl.textContent = 'Desglose de Pedidos';
+            tablaDetalleEl.innerHTML = ''; 
+            tablaDetalleEl.className = ''; 
+            
+            const grid = document.createElement('div');
+            grid.className = 'pedidos-grid'; 
+
+            pedidos.forEach(p => {
+                const hora = new Date(p.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+                
+                const itemsStr = (detallesPorPedido.get(p.id) || [])
+                    .map(d => `<b>${d.cantidad}x</b> ${d.producto} <span style="color:#e65100; font-size:0.85rem;">${d.notas ? `(${d.notas})` : ''}</span>`)
+                    .join('<br>');
+
+                const badgeEstado = p.estado === 'pendiente' 
+                    ? '<span class="badge badge-yellow">🕒 Por hacer</span>' 
+                    : '<span class="badge badge-green">✅ Entregado</span>';
+                    
+                const badgeNube = p.sincronizado 
+                    ? '<span class="badge badge-blue">☁️ En la nube</span>' 
+                    : '<span class="badge badge-red">⚠️ Sin subir</span>';
+
+                const cliHTML = p.nombre_cliente ? `<div class="pedido-nombre-cliente">👤 ${p.nombre_cliente}</div>` : '';
+
+                grid.innerHTML += `
+                    <div class="pedido-card">
+                        <div class="pedido-head" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">
+                            <div>
+                                <span class="pedido-num">#${p.id}</span>
+                                ${cliHTML}
+                            </div>
+                            <span class="pedido-tiempo">${hora}</span>
+                        </div>
+                        <div class="detalle-pedido-items">${itemsStr}</div>
+                        <div class="pedido-footer">
+                            <div class="badge-group">
+                                ${badgeEstado}
+                                ${badgeNube}
+                            </div>
+                            <div class="pedido-total" style="font-size: 1.4rem; color: #2e7d32;">
+                                ${formatoPesos(p.total)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            tablaDetalleEl.appendChild(grid);
+        } else {
+            // Vista Semanal / Mensual (Agrupado por día)
+            tituloDetalleEl.textContent = 'Ventas día por día';
+            tablaDetalleEl.className = 'tabla-wrap'; 
+
+            const porDia = new Map();
+            pedidos.forEach(p => {
+                const dia = inicioDelDia(new Date(p.fecha));
+                const clave = fechaParaInput(dia);
+                const info = porDia.get(clave) || { fecha: dia, pedidos: 0, total: 0 };
+                info.pedidos += 1;
+                info.total += Number(p.total);
+                porDia.set(clave, info);
+            });
+
+            const filasDias = [...porDia.values()]
+                .sort((a, b) => a.fecha - b.fecha)
+                .map(info => [textoFecha(info.fecha), String(info.pedidos), formatoPesos(info.total)]);
+            
+            dibujarTabla(
+                tablaDetalleEl,
+                ['Día', 'Pedidos', 'Total del día'],
+                filasDias,
+                ['TOTAL', String(pedidos.length), formatoPesos(totalVentas)],
+                [1, 2]
+            );
+        }
+    }
+
+    // --- Estado de la subida a la nube ---
+    const sinSubir = pedidos.filter(p => !p.sincronizado);
+    const totalSinSubir = sinSubir.reduce((suma, p) => suma + Number(p.total), 0);
+    const etiquetaPeriodo = periodoVentas === 'dia'
+        ? (periodoEsActual(inicio, fin) ? 'de hoy' : 'de este día')
+        : (periodoVentas === 'semana' ? 'de esta semana' : 'de este mes');
+
+    if (pedidos.length === 0) {
+        nubeEstadoEl.textContent = 'No hay ventas para subir en este periodo.';
+    } else if (sinSubir.length === 0) {
+        nubeEstadoEl.textContent = '✅ Todas las ventas de este periodo ya están guardadas en la nube.';
+    } else {
+        nubeEstadoEl.textContent = `☁️ Faltan por subir a la nube ${sinSubir.length} ${plural(sinSubir.length, 'pedido', 'pedidos')} (${formatoPesos(totalSinSubir)}).`;
+    }
+
+    btnSubirNube.disabled = sinSubir.length === 0;
+    btnSubirNube.textContent = `☁️ Subir ventas ${etiquetaPeriodo}`;
+}
+
+// ==========================================
+// 8. SINCRONIZACIÓN CON SUPABASE (POR PERIODO)
 // ==========================================
 const SUPABASE_URL = 'https://yepfezdzncnofalgkvet.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InllcGZlemR6bmNub2ZhbGdrdmV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxNzUzMTAsImV4cCI6MjEwOTc1MTMxMH0.DxMx-NuB1CS6NGjhQvu4Q8CimCd4C3_v67zhbGDwXV0'; // <--- OJO AQUI
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-document.getElementById('btn-sync').addEventListener('click', async () => {
-    const btnSync = document.getElementById('btn-sync');
-    btnSync.disabled = true;
-    btnSync.textContent = '⏳ Sincronizando...';
+// Sube a Supabase la lista de pedidos que se le pase y los marca como subidos
+async function subirPedidosANube(listaPedidos) {
+    let subidos = 0;
+
+    for (const pedido of listaPedidos) {
+        const { data: pedidoNube, error: errPedido } = await supabaseClient
+            .from('pedidos')
+            .insert([{
+                id_local: pedido.id,
+                fecha: pedido.fecha,
+                total: pedido.total,
+                nombre_cliente: pedido.nombre_cliente || null // Se envía a Supabase
+            }])
+            .select()
+            .single();
+
+        if (errPedido) throw errPedido;
+
+        const detallesLocales = await db.detalle_pedido.where('pedido_id').equals(pedido.id).toArray();
+        const detallesNube = detallesLocales.map(d => ({
+            pedido_id: pedidoNube.id,
+            producto: d.producto,
+            cantidad: d.cantidad,
+            precio_unitario: d.precio_unitario,
+            notas: d.notas
+        }));
+
+        const { error: errDetalle } = await supabaseClient
+            .from('detalle_pedido')
+            .insert(detallesNube);
+
+        if (errDetalle) throw errDetalle;
+
+        await db.pedidos.update(pedido.id, { sincronizado: 1 });
+        subidos++;
+    }
+
+    return subidos;
+}
+
+// Botón "Subir ventas" de la pestaña Ventas: sube lo que falta del periodo que se está viendo
+btnSubirNube.addEventListener('click', async () => {
+    const { inicio, fin } = rangoPeriodo(periodoVentas, fechaVentas);
+    const pedidos = await pedidosEnRango(inicio, fin);
+    const faltantes = pedidos.filter(p => !p.sincronizado);
+
+    if (faltantes.length === 0) {
+        alert('Todo está al día. No hay ventas pendientes por subir en este periodo.');
+        return;
+    }
+
+    btnSubirNube.disabled = true;
+    btnSubirNube.textContent = '⏳ Subiendo...';
 
     try {
-        const pendientes = await db.pedidos.where('sincronizado').equals(0).toArray();
-
-        if (pendientes.length === 0) {
-            alert('Todo está al día. No hay ventas pendientes por subir.');
-            return;
-        }
-
-        let subidos = 0;
-
-        for (const pedido of pendientes) {
-            const { data: pedidoNube, error: errPedido } = await supabaseClient
-                .from('pedidos')
-                .insert([{
-                    id_local: pedido.id,
-                    fecha: pedido.fecha,
-                    total: pedido.total,
-                    nombre_cliente: pedido.nombre_cliente || null // Se envía a Supabase
-                }])
-                .select()
-                .single();
-
-            if (errPedido) throw errPedido;
-
-            const detallesLocales = await db.detalle_pedido.where('pedido_id').equals(pedido.id).toArray();
-            const detallesNube = detallesLocales.map(d => ({
-                pedido_id: pedidoNube.id,
-                producto: d.producto,
-                cantidad: d.cantidad,
-                precio_unitario: d.precio_unitario,
-                notas: d.notas
-            }));
-
-            const { error: errDetalle } = await supabaseClient
-                .from('detalle_pedido')
-                .insert(detallesNube);
-
-            if (errDetalle) throw errDetalle;
-
-            await db.pedidos.update(pedido.id, { sincronizado: 1 });
-            subidos++;
-        }
-
+        const subidos = await subirPedidosANube(faltantes);
         alert(`✅ ¡Listo! Se subieron ${subidos} pedidos a la nube.`);
     } catch (error) {
         console.error('Error al sincronizar con Supabase:', error);
         alert('❌ Error de conexión. Verifica tu internet y tus llaves de Supabase.');
     } finally {
-        btnSync.disabled = false;
-        btnSync.textContent = '🔄 Subir datos a la Nube';
+        renderizarVentas(); // Actualiza el estado y el texto del botón
     }
 });
 
 // ==========================================
-// 8. REGISTRO DEL SERVICE WORKER (PWA)
+// 9. REGISTRO DEL SERVICE WORKER (PWA)
 // ==========================================
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(err => console.error('Error al registrar SW', err));
