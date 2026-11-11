@@ -27,6 +27,7 @@ let notasSeleccionadas = [];
 const ticketList = document.getElementById('ticket-list');
 const totalPriceEl = document.getElementById('total-price');
 const inputNombreCliente = document.getElementById('nombre-cliente');
+const toastEl = document.getElementById('toast-notification');
 
 // Elementos Pestañas
 const viewVender = document.getElementById('view-vender');
@@ -51,7 +52,6 @@ const noteButtons = document.querySelectorAll('.btn-note');
 // Elementos Modal Granel
 const modalGranel = document.getElementById('modal-granel');
 const inputGranelPesos = document.getElementById('input-granel-pesos');
-const sliderGranelPesos = document.getElementById('slider-granel-pesos');
 const textGranelGramos = document.getElementById('granel-gramos');
 const customNoteGranel = document.getElementById('custom-note-granel');
 
@@ -66,6 +66,20 @@ const tituloDetalleEl = document.getElementById('titulo-detalle');
 const nubeEstadoEl = document.getElementById('nube-estado');
 const btnSubirNube = document.getElementById('btn-subir-nube');
 
+// --- FUNCIÓN TOAST (NOTIFICACIÓN ELEGANTE ARRIBA) ---
+let toastTimer = null;
+function mostrarToast(mensaje, esError = false) {
+    if (!toastEl) return;
+    toastEl.textContent = mensaje;
+    toastEl.classList.toggle('toast-error', esError);
+    toastEl.classList.remove('hidden');
+
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+        toastEl.classList.add('hidden');
+    }, 3000);
+}
+
 // ==========================================
 // 3. ABRIR MODALES AL TOCAR PRODUCTO DEL MENÚ
 // ==========================================
@@ -73,7 +87,7 @@ document.querySelectorAll('.btn-product').forEach(btn => {
     btn.addEventListener('click', () => {
         const nombre = btn.dataset.name;
         const precio = parseFloat(btn.dataset.price);
-        const tipo = btn.dataset.type; // Verifica si es venta a granel
+        const tipo = btn.dataset.type;
 
         if (tipo === 'granel') {
             abrirModalGranel(nombre, precio);
@@ -83,16 +97,14 @@ document.querySelectorAll('.btn-product').forEach(btn => {
     });
 });
 
-// --- LÓGICA MODAL GRANEL (POR PESO) ---
+// --- LÓGICA MODAL GRANEL (POR PESO - ÁGIL) ---
 let precioKiloActual = 350;
 
 function abrirModalGranel(nombre, precioKilo) {
     productoActual = { nombre: nombre, precioKilo: precioKilo };
     precioKiloActual = precioKilo;
     
-    // Resetear a valores por defecto (ej. $70)
     inputGranelPesos.value = 70;
-    sliderGranelPesos.value = 70;
     customNoteGranel.value = '';
     calcularGramos();
     
@@ -101,34 +113,38 @@ function abrirModalGranel(nombre, precioKilo) {
 
 function calcularGramos() {
     const pesos = parseFloat(inputGranelPesos.value) || 0;
-    // Fórmula: (Monto / PrecioPorKilo) * 1000 gramos
     const gramos = Math.round((pesos / precioKiloActual) * 1000);
     textGranelGramos.textContent = `${gramos}g`;
 }
 
-// Sincronizar slider e input numérico
-inputGranelPesos.addEventListener('input', () => {
-    sliderGranelPesos.value = inputGranelPesos.value;
-    calcularGramos();
-});
-sliderGranelPesos.addEventListener('input', () => {
-    inputGranelPesos.value = sliderGranelPesos.value;
-    calcularGramos();
+inputGranelPesos.addEventListener('input', calcularGramos);
+
+document.querySelectorAll('.btn-preset').forEach(btn => {
+    btn.addEventListener('click', () => {
+        let actual = parseFloat(inputGranelPesos.value) || 0;
+        if (btn.dataset.val) {
+            inputGranelPesos.value = parseFloat(btn.dataset.val);
+        } else if (btn.dataset.add) {
+            inputGranelPesos.value = actual + parseFloat(btn.dataset.add);
+        }
+        calcularGramos();
+    });
 });
 
-document.getElementById('btn-cancel-granel').addEventListener('click', () => {
-    modalGranel.classList.add('hidden');
-});
+// Cierres del Modal Granel (Cancelar y Bolita X)
+const cerrarGranel = () => modalGranel.classList.add('hidden');
+document.getElementById('btn-cancel-granel').addEventListener('click', cerrarGranel);
+const btnCloseModal2 = document.getElementById('btn-close-modal-2');
+if (btnCloseModal2) btnCloseModal2.addEventListener('click', cerrarGranel);
 
 document.getElementById('btn-save-granel').addEventListener('click', () => {
     const pesos = parseFloat(inputGranelPesos.value) || 0;
-    if (pesos <= 0) return alert('Ingresa un monto válido.');
+    if (pesos <= 0) return mostrarToast('⚠️ Ingresa un monto válido.', true);
 
     const gramos = textGranelGramos.textContent;
     const notaExtra = customNoteGranel.value.trim();
     const notasFinales = notaExtra ? `${gramos}, ${notaExtra}` : gramos;
 
-    // Se agrega al carrito como 1 producto con el precio total en pesos y los gramos en las notas
     carrito.push({
         nombre: productoActual.nombre,
         precio: pesos,
@@ -137,7 +153,7 @@ document.getElementById('btn-save-granel').addEventListener('click', () => {
     });
 
     renderizarTicket();
-    modalGranel.classList.add('hidden');
+    cerrarGranel();
 });
 
 // --- LÓGICA MODAL NORMAL ---
@@ -226,10 +242,13 @@ function agregarOAgruparCarrito(nombre, precio, cantidad, notas) {
     else carrito.push({ nombre, precio, cantidad, notas });
 }
 
+// Cierres del Modal Normal (Cancelar y Bolita X)
 document.getElementById('btn-cancel-modal').addEventListener('click', () => {
     if (productoActual.editIndex !== null) { carrito.splice(productoActual.editIndex, 1); renderizarTicket(); }
     modalNotas.classList.add('hidden');
 });
+const btnCloseModal1 = document.getElementById('btn-close-modal-1');
+if (btnCloseModal1) btnCloseModal1.addEventListener('click', () => modalNotas.classList.add('hidden'));
 
 // ==========================================
 // 4. RENDERIZAR TICKET
@@ -257,7 +276,6 @@ function renderizarTicket() {
             </div>
             <div class="ticket-item-price">$${subtotal.toFixed(2)}</div>
         `;
-        // Evitamos abrir el modal de edición si es venta a granel para mantenerlo simple
         if (!item.notas.includes('g')) {
             li.addEventListener('click', () => abrirModalProducto(item, index));
         }
@@ -272,7 +290,7 @@ function renderizarTicket() {
 // ==========================================
 document.getElementById('btn-cobrar').addEventListener('click', async () => {
     if (carrito.length === 0) {
-        alert('Agrega al menos un producto antes de cobrar.');
+        mostrarToast('⚠️ Agrega al menos un producto antes de cobrar.', true);
         return;
     }
 
@@ -298,15 +316,14 @@ document.getElementById('btn-cobrar').addEventListener('click', async () => {
 
         await db.detalle_pedido.bulkAdd(detalles);
 
-        // Resetear carrito y nombre
         carrito = [];
         inputNombreCliente.value = '';
         renderizarTicket();
         actualizarBadgePendientes();
-        alert(`✅ Orden #${pedidoId} cobrada ($${totalVenta.toFixed(2)})`);
+        mostrarToast(`✅ Orden #${pedidoId} cobrada ($${totalVenta.toFixed(2)})`);
     } catch (error) {
         console.error('Error al guardar localmente:', error);
-        alert('❌ Error al guardar la venta.');
+        mostrarToast('❌ Error al guardar la venta.', true);
     }
 });
 
@@ -364,7 +381,6 @@ async function renderizarPendientes() {
         num.textContent = `Pedido #${pedido.id}`;
         numWrap.appendChild(num);
         
-        // Mostrar nombre si existe
         if (pedido.nombre_cliente) {
             const nombre = document.createElement('strong');
             nombre.className = 'pedido-nombre-cliente';
@@ -428,7 +444,6 @@ actualizarBadgePendientes();
 let periodoVentas = 'dia';
 let fechaVentas = inicioDelDia(new Date());
 
-// --- Utilidades de fechas ---
 function inicioDelDia(f) {
     return new Date(f.getFullYear(), f.getMonth(), f.getDate());
 }
@@ -448,8 +463,6 @@ function textoFecha(f) {
     return f.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
-// Devuelve el inicio (incluido) y el fin (excluido) del periodo elegido.
-// La semana va de lunes a domingo.
 function rangoPeriodo(periodo, ancla) {
     const a = inicioDelDia(ancla);
     let inicio, fin;
@@ -458,7 +471,7 @@ function rangoPeriodo(periodo, ancla) {
         inicio = a;
         fin = new Date(a.getFullYear(), a.getMonth(), a.getDate() + 1);
     } else if (periodo === 'semana') {
-        const dif = (a.getDay() + 6) % 7; // lunes = 0
+        const dif = (a.getDay() + 6) % 7; 
         inicio = new Date(a.getFullYear(), a.getMonth(), a.getDate() - dif);
         fin = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate() + 7);
     } else {
@@ -485,15 +498,6 @@ function describirRango(periodo, inicio, fin) {
     return inicio.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
 }
 
-// Frase para iniciar el resumen: "Hoy", "Esta semana", "Ese mes"...
-function sujetoDelPeriodo(periodo, inicio, fin) {
-    const actual = periodoEsActual(inicio, fin);
-    if (periodo === 'dia') return actual ? 'Hoy' : `El ${textoFecha(inicio)}`;
-    if (periodo === 'semana') return actual ? 'Esta semana' : 'En esa semana';
-    return actual ? 'Este mes' : 'En ese mes';
-}
-
-// --- Utilidades de texto ---
 function formatoPesos(n) {
     return Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
 }
@@ -512,12 +516,6 @@ function textoGramos(g) {
     return `${g} gramos`;
 }
 
-function unirConY(lista) {
-    if (lista.length <= 1) return lista.join('');
-    return `${lista.slice(0, -1).join(', ')} y ${lista[lista.length - 1]}`;
-}
-
-// --- Consulta a la base de datos ---
 async function pedidosEnRango(inicio, fin) {
     return db.pedidos
         .where('fecha')
@@ -525,8 +523,6 @@ async function pedidosEnRango(inicio, fin) {
         .sortBy('fecha');
 }
 
-// --- Dibujar una tabla ---
-// numericas: posiciones de columnas que se alinean a la derecha
 function dibujarTabla(contenedor, encabezados, filas, pie, numericas = []) {
     contenedor.innerHTML = '';
     const tabla = document.createElement('table');
@@ -574,20 +570,16 @@ function dibujarTabla(contenedor, encabezados, filas, pie, numericas = []) {
     contenedor.appendChild(tabla);
 }
 
-// --- Dibujar todo el registro de ventas ---
-// --- Dibujar todo el registro de ventas (Dashboard Moderno) ---
 // --- Dibujar todo el registro de ventas (Dashboard Moderno) ---
 async function renderizarVentas() {
     const { inicio, fin } = rangoPeriodo(periodoVentas, fechaVentas);
 
-    // Controles
     ventasFechaInput.value = fechaParaInput(fechaVentas);
     ventasRangoEl.textContent = describirRango(periodoVentas, inicio, fin);
     document.querySelectorAll('.periodo-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.periodo === periodoVentas);
     });
 
-    // Datos
     const pedidos = await pedidosEnRango(inicio, fin);
     const ids = pedidos.map(p => p.id);
     const detalles = ids.length ? await db.detalle_pedido.where('pedido_id').anyOf(ids).toArray() : [];
@@ -600,7 +592,6 @@ async function renderizarVentas() {
 
     const totalVentas = pedidos.reduce((suma, p) => suma + Number(p.total), 0);
 
-    // Totales por producto
     const productos = new Map();
     detalles.forEach(d => {
         const info = productos.get(d.producto) || { cantidad: 0, total: 0, gramos: 0 };
@@ -611,7 +602,6 @@ async function renderizarVentas() {
         productos.set(d.producto, info);
     });
 
-    // Producto Estrella (el que más piezas vendió)
     let productoEstrella = 'Ninguno';
     const masVendidos = [...productos.entries()]
         .filter(([, info]) => info.gramos === 0)
@@ -621,35 +611,36 @@ async function renderizarVentas() {
         productoEstrella = `${masVendidos[0][0]} (${masVendidos[0][1].cantidad})`;
     }
 
-    // --- 1. RENDERIZAR KPIs (Tarjetas de Impacto) ---
     ventasResumenEl.className = ''; 
     ventasResumenEl.innerHTML = `
         <div class="kpi-grid">
             <div class="kpi-card ingresos">
-                <div class="kpi-title"> Ingresos Totales</div>
+                <div class="kpi-title">💰 Ingresos Totales</div>
                 <div class="kpi-value">${formatoPesos(totalVentas)}</div>
             </div>
             <div class="kpi-card pedidos">
-                <div class="kpi-title"> Total Pedidos</div>
+                <div class="kpi-title">📦 Total Pedidos</div>
                 <div class="kpi-value">${pedidos.length}</div>
             </div>
-           
+            <div class="kpi-card promedio">
+                <div class="kpi-title">📈 Ticket Promedio</div>
+                <div class="kpi-value">${pedidos.length ? formatoPesos(totalVentas / pedidos.length) : '$0.00'}</div>
+            </div>
             <div class="kpi-card">
-                <div class="kpi-title"> Más Vendido</div>
+                <div class="kpi-title">⭐ Más Vendido</div>
                 <div class="kpi-value" style="font-size:1.2rem;">${productoEstrella}</div>
             </div>
         </div>
     `;
 
-    // --- NUEVO: RECUADRO DE RESUMEN DE PRODUCTOS VENDIDOS ---
     const productosOrdenados = [...productos.entries()].sort((a, b) => b[1].total - a[1].total);
     
     if (productosOrdenados.length > 0) {
         let listaHTML = '';
         productosOrdenados.forEach(([nombre, info]) => {
             const cuantos = info.gramos > 0 
-                ? `${textoGramos(info.gramos)}` // Muestra ej. "200 gramos"
-                : `${info.cantidad}x`;          // Muestra ej. "5x"
+                ? `${textoGramos(info.gramos)}`
+                : `${info.cantidad}x`;
             
             listaHTML += `
                 <div class="producto-item-list">
@@ -662,19 +653,17 @@ async function renderizarVentas() {
 
         ventasResumenEl.innerHTML += `
             <div class="resumen-productos-card">
-                <h4>Desglose de total de venta</h4>
+                <h4>🍔 ¿Qué se vendió? (Cantidades)</h4>
                 ${listaHTML}
             </div>
         `;
     }
 
-    // --- Tablas y Detalles ---
     ventasDetalleEl.classList.toggle('hidden', pedidos.length === 0);
 
     if (pedidos.length > 0) {
-        tablaProductosEl.innerHTML = ''; // Limpiamos la tabla vieja porque ya tenemos el nuevo recuadro
+        tablaProductosEl.innerHTML = '';
 
-        // Tarjetas de Pedidos Individuales
         if (periodoVentas === 'dia') {
             tituloDetalleEl.textContent = 'Desglose de Pedidos';
             tablaDetalleEl.innerHTML = ''; 
@@ -724,7 +713,6 @@ async function renderizarVentas() {
             });
             tablaDetalleEl.appendChild(grid);
         } else {
-            // Vista Semanal / Mensual (Agrupado por día)
             tituloDetalleEl.textContent = 'Ventas día por día';
             tablaDetalleEl.className = 'tabla-wrap'; 
 
@@ -752,7 +740,6 @@ async function renderizarVentas() {
         }
     }
 
-    // --- Estado de la subida a la nube ---
     const sinSubir = pedidos.filter(p => !p.sincronizado);
     const totalSinSubir = sinSubir.reduce((suma, p) => suma + Number(p.total), 0);
     const etiquetaPeriodo = periodoVentas === 'dia'
@@ -771,14 +758,45 @@ async function renderizarVentas() {
     btnSubirNube.textContent = `☁️ Subir ventas ${etiquetaPeriodo}`;
 }
 
+// Controles
+document.querySelectorAll('.periodo-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        periodoVentas = btn.dataset.periodo;
+        renderizarVentas();
+    });
+});
+
+function moverPeriodo(direccion) {
+    const f = fechaVentas;
+    if (periodoVentas === 'dia') {
+        fechaVentas = new Date(f.getFullYear(), f.getMonth(), f.getDate() + direccion);
+    } else if (periodoVentas === 'semana') {
+        fechaVentas = new Date(f.getFullYear(), f.getMonth(), f.getDate() + 7 * direccion);
+    } else {
+        fechaVentas = new Date(f.getFullYear(), f.getMonth() + direccion, 1);
+    }
+    renderizarVentas();
+}
+
+document.getElementById('ventas-anterior').addEventListener('click', () => moverPeriodo(-1));
+document.getElementById('ventas-siguiente').addEventListener('click', () => moverPeriodo(1));
+document.getElementById('ventas-hoy').addEventListener('click', () => {
+    fechaVentas = inicioDelDia(new Date());
+    renderizarVentas();
+});
+ventasFechaInput.addEventListener('change', () => {
+    if (!ventasFechaInput.value) return;
+    fechaVentas = fechaDesdeInput(ventasFechaInput.value);
+    renderizarVentas();
+});
+
 // ==========================================
-// 8. SINCRONIZACIÓN CON SUPABASE (POR PERIODO)
+// 8. SINCRONIZACIÓN CON SUPABASE
 // ==========================================
 const SUPABASE_URL = 'https://yepfezdzncnofalgkvet.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InllcGZlemR6bmNub2ZhbGdrdmV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxNzUzMTAsImV4cCI6MjEwOTc1MTMxMH0.DxMx-NuB1CS6NGjhQvu4Q8CimCd4C3_v67zhbGDwXV0'; // <--- OJO AQUI
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InllcGZlemR6bmNub2ZhbGdrdmV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxNzUzMTAsImV4cCI6MjEwOTc1MTMxMH0.DxMx-NuB1CS6NGjhQvu4Q8CimCd4C3_v67zhbGDwXV0';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Sube a Supabase la lista de pedidos que se le pase y los marca como subidos
 async function subirPedidosANube(listaPedidos) {
     let subidos = 0;
 
@@ -789,7 +807,7 @@ async function subirPedidosANube(listaPedidos) {
                 id_local: pedido.id,
                 fecha: pedido.fecha,
                 total: pedido.total,
-                nombre_cliente: pedido.nombre_cliente || null // Se envía a Supabase
+                nombre_cliente: pedido.nombre_cliente || null
             }])
             .select()
             .single();
@@ -818,14 +836,13 @@ async function subirPedidosANube(listaPedidos) {
     return subidos;
 }
 
-// Botón "Subir ventas" de la pestaña Ventas: sube lo que falta del periodo que se está viendo
 btnSubirNube.addEventListener('click', async () => {
     const { inicio, fin } = rangoPeriodo(periodoVentas, fechaVentas);
     const pedidos = await pedidosEnRango(inicio, fin);
     const faltantes = pedidos.filter(p => !p.sincronizado);
 
     if (faltantes.length === 0) {
-        alert('Todo está al día. No hay ventas pendientes por subir en este periodo.');
+        mostrarToast('ℹ️ Todo está al día. No hay ventas pendientes en este periodo.');
         return;
     }
 
@@ -834,12 +851,12 @@ btnSubirNube.addEventListener('click', async () => {
 
     try {
         const subidos = await subirPedidosANube(faltantes);
-        alert(`✅ ¡Listo! Se subieron ${subidos} pedidos a la nube.`);
+        mostrarToast(`✅ ¡Listo! Se subieron ${subidos} pedidos a la nube.`);
     } catch (error) {
         console.error('Error al sincronizar con Supabase:', error);
-        alert('❌ Error de conexión. Verifica tu internet y tus llaves de Supabase.');
+        mostrarToast('❌ Error de conexión. Verifica tu internet y tus llaves.', true);
     } finally {
-        renderizarVentas(); // Actualiza el estado y el texto del botón
+        renderizarVentas();
     }
 });
 

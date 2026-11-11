@@ -8,7 +8,8 @@
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
-
+<!-- Notificación emergente flotante (Toast) -->
+    <div id="toast-notification" class="toast hidden"></div>
     <!-- Pestañas principales -->
     <nav class="top-tabs">
         <button type="button" id="tab-vender" class="tab-btn active">➕ Nuevo pedido</button>
@@ -121,6 +122,7 @@
 
     <!-- Modal 1: Modal Normal para Cantidad y Mañosidades -->
     <div id="modal-notas" class="modal-overlay hidden">
+        <button type="button" id="btn-close-modal-1" class="btn-close-modal" aria-label="Cerrar">✕</button>
         <div class="modal-content">
             <h3 id="modal-product-name">Producto</h3>
 
@@ -169,8 +171,9 @@
         </div>
     </div>
 
-    <!-- Modal 2: Venta a Granel (Por Peso) -->
+   <!-- Modal 2: Venta a Granel (Por Peso) -->
     <div id="modal-granel" class="modal-overlay hidden">
+        <button type="button" id="btn-close-modal-2" class="btn-close-modal" aria-label="Cerrar">✕</button>
         <div class="modal-content">
             <h3 id="modal-granel-name">Carnitas a Granel</h3>
 
@@ -178,11 +181,18 @@
                 <label>¿De a cuánto? ($ Pesos)</label>
                 <div class="granel-input-group">
                     <span class="currency-symbol">$</span>
-                    <!-- Empieza en $70 -->
-                    <input type="number" id="input-granel-pesos" value="70" min="10" step="10">
+                    <input type="number" id="input-granel-pesos" value="70" min="10" step="10" inputmode="numeric">
                 </div>
-                <!-- Barrita deslizable -->
-                <input type="range" id="slider-granel-pesos" min="70" max="700" step="10" value="70" class="slider-granel">
+
+                <!-- Botones táctiles de monto rápido -->
+                <div class="granel-quick-presets">
+                    <button type="button" class="btn-preset" data-val="50">70$</button>
+                    <button type="button" class="btn-preset" data-val="70">$80</button>
+                    <button type="button" class="btn-preset" data-val="100">$100</button>
+                    <button type="button" class="btn-preset" data-val="150">$150</button>
+                    <button type="button" class="btn-preset" data-val="200">$200</button>
+                    <button type="button" class="btn-preset btn-add-preset" data-add="5">añadir$5</button>
+                </div>
             </div>
 
             <div class="gramos-result">
